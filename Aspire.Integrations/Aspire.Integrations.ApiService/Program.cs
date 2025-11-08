@@ -1,4 +1,7 @@
-using System.Net.Mail;
+using Aspire.MailKit.Client;
+using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Mvc;
+using MimeKit;
 using Qdrant.Client;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,12 +12,15 @@ builder.AddServiceDefaults();
 // Add qdrant
 builder.AddQdrantClient("qdrant");
 
+// Add MailKit services to the container (using maildev connection string).
+builder.AddMailKitClient("maildev");
+
 // Add SmtpClient from MailDev integration
 builder.Services.AddTransient(sp =>
 {
     var smtpUri = new Uri(builder.Configuration.GetConnectionString("maildev")!);
 
-    return new SmtpClient(smtpUri.Host, smtpUri.Port);
+    return new System.Net.Mail.SmtpClient(smtpUri.Host, smtpUri.Port);
 });
 
 // Add services to the container.
@@ -49,9 +55,54 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
+// qdrant example(s)
 app.MapGet("/qdrant/collections", async (QdrantClient client, CancellationToken cancellationToken) => await client.ListCollectionsAsync(cancellationToken));
 
-app.MapGet("/email/test", async (SmtpClient client, CancellationToken cancellationToken) => await client.SendMailAsync("no-reply@example.com", "john.doe@example.com", "Test email", "This is some test content for the email.", cancellationToken));
+// maildev example(s)
+app.MapGet("/email/test", async (System.Net.Mail.SmtpClient client, CancellationToken cancellationToken) => await client.SendMailAsync("no-reply@example.com", "john.doe@example.com", "Test email", "This is some test content for the email.", cancellationToken));
+
+// MailKit example(s)
+app.MapPost("/subscribe",
+    async (MailKitClientFactory factory, string email) =>
+    {
+        ISmtpClient client = await factory.GetSmtpClientAsync();
+
+        using var message = new System.Net.Mail.MailMessage("newsletter@yourcompany.com", email)
+        {
+            Subject = "Welcome to our newsletter!",
+            Body = "Thank you for subscribing to our newsletter!"
+        };
+
+        await client.SendAsync(MimeMessage.CreateFromMailMessage(message));
+    });
+
+app.MapGet("/subscribe/{*email}",
+    async (MailKitClientFactory factory, [FromRoute] string email) =>
+    {
+        ISmtpClient client = await factory.GetSmtpClientAsync();
+
+        using var message = new System.Net.Mail.MailMessage("newsletter@yourcompany.com", email)
+        {
+            Subject = "Welcome to our newsletter!",
+            Body = "Thank you for subscribing to our newsletter!"
+        };
+
+        await client.SendAsync(MimeMessage.CreateFromMailMessage(message));
+    });
+
+app.MapPost("/unsubscribe",
+    async (MailKitClientFactory factory, string email) =>
+    {
+        ISmtpClient client = await factory.GetSmtpClientAsync();
+
+        using var message = new System.Net.Mail.MailMessage("newsletter@yourcompany.com", email)
+        {
+            Subject = "You are unsubscribed from our newsletter!",
+            Body = "Sorry to see you go. We hope you will come back soon!"
+        };
+
+        await client.SendAsync(MimeMessage.CreateFromMailMessage(message));
+    });
 
 app.MapDefaultEndpoints();
 

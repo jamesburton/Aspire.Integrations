@@ -4,6 +4,7 @@
 // an alternative namespace.
 namespace Aspire.Hosting.ApplicationModel;
 
+// NB: Based on https://learn.microsoft.com/en-us/dotnet/aspire/extensibility/custom-hosting-integration?tabs=windows
 public sealed class MailDevResource(string name) : ContainerResource(name), IResourceWithConnectionString
 {
     // Constants used to refer to well known-endpoint names, this is specific
