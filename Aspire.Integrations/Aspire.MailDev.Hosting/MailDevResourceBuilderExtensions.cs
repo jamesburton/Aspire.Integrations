@@ -8,7 +8,7 @@ public static class MailDevResourceBuilderExtensions
 {
     /// <summary>
     /// Adds the <see cref="MailDevResource"/> to the given
-    /// <paramref name="builder"/> instance. Uses the "2.1.0" tag.
+    /// <paramref name="builder"/> instance. Uses the "2.2.1" tag.
     /// </summary>
     /// <param name="builder">The <see cref="IDistributedApplicationBuilder"/>.</param>
     /// <param name="name">The name of the resource.</param>
@@ -20,7 +20,7 @@ public static class MailDevResourceBuilderExtensions
     /// </returns>
     public static IResourceBuilder<MailDevResource> AddMailDev(
         this IDistributedApplicationBuilder builder,
-        [ResourceName] string name,
+        [ResourceName] string name = "maildev",
         int? httpPort = null,
         int? smtpPort = null)
     {

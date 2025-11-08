@@ -1,18 +1,33 @@
+using Aspire.Hosting;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
 
+//var flowiseSecretKeyParameter = builder.AddParameter("flowise-secret-key");
+var flowiseUsernameParameter = builder.AddParameter("flowise-username");
+var flowisePasswordParameter = builder.AddParameter("flowise-password");
+
 var maildev = builder.AddMailDev("maildev");
+
+// var flowise = builder.AddFlowise("flowise");
+// var flowise = builder.AddFlowise("flowise", flowiseSecretKeyParameter.Resource);
+var flowise = builder.AddFlowise("flowise",
+        usernameParameter: flowiseUsernameParameter.Resource,
+        passwordParameter: flowisePasswordParameter.Resource)
+    .WithLifetime(ContainerLifetime.Persistent);
 
 var qdrant = builder.AddQdrant("qdrant")
                     .WithLifetime(ContainerLifetime.Persistent)
-                    .WithDataVolume(name: "qdrant_Aspire-Integrations");
+                    .WithDataVolume(name: "flowise_Aspire-Integrations");
 
 var apiService = builder.AddProject<Projects.Aspire_Integrations_ApiService>("apiservice")
     .WithReference(qdrant)
     .WaitFor(qdrant)
     .WithReference(maildev)
     .WaitFor(maildev)
+    .WithReference(flowise)
+    .WaitFor(flowise)
     .WithHttpHealthCheck("/health");
 
 builder.AddProject<Projects.Aspire_Integrations_Web>("webfrontend")
