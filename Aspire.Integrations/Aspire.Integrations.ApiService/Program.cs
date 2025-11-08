@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using Qdrant.Client;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,14 @@ builder.AddServiceDefaults();
 
 // Add qdrant
 builder.AddQdrantClient("qdrant");
+
+// Add SmtpClient from MailDev integration
+builder.Services.AddTransient(sp =>
+{
+    var smtpUri = new Uri(builder.Configuration.GetConnectionString("maildev")!);
+
+    return new SmtpClient(smtpUri.Host, smtpUri.Port);
+});
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
@@ -40,7 +49,9 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
-app.MapGet("/qdrant/collections", async (QdrantClient client) => await client.ListCollectionsAsync());
+app.MapGet("/qdrant/collections", async (QdrantClient client, CancellationToken cancellationToken) => await client.ListCollectionsAsync(cancellationToken));
+
+app.MapGet("/email/test", async (SmtpClient client, CancellationToken cancellationToken) => await client.SendMailAsync("no-reply@example.com", "john.doe@example.com", "Test email", "This is some test content for the email.", cancellationToken));
 
 app.MapDefaultEndpoints();
 

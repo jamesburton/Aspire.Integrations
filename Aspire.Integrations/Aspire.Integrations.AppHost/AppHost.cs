@@ -2,6 +2,8 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
 
+var maildev = builder.AddMailDev("maildev");
+
 var qdrant = builder.AddQdrant("qdrant")
                     .WithLifetime(ContainerLifetime.Persistent)
                     .WithDataVolume(name: "qdrant_Aspire-Integrations");
@@ -9,6 +11,8 @@ var qdrant = builder.AddQdrant("qdrant")
 var apiService = builder.AddProject<Projects.Aspire_Integrations_ApiService>("apiservice")
     .WithReference(qdrant)
     .WaitFor(qdrant)
+    .WithReference(maildev)
+    .WaitFor(maildev)
     .WithHttpHealthCheck("/health");
 
 builder.AddProject<Projects.Aspire_Integrations_Web>("webfrontend")
@@ -19,4 +23,4 @@ builder.AddProject<Projects.Aspire_Integrations_Web>("webfrontend")
     .WithReference(apiService)
     .WaitFor(apiService);
 
-builder.Build().Run();
+await builder.Build().RunAsync();
