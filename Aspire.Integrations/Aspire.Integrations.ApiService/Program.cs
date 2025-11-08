@@ -1,4 +1,6 @@
+using Aspire.Flowise.Client;
 using Aspire.MailKit.Client;
+using Flowise.Client;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
@@ -14,6 +16,9 @@ builder.AddQdrantClient("qdrant");
 
 // Add MailKit services to the container (using maildev connection string).
 builder.AddMailKitClient("maildev");
+
+// Add Flowise client
+builder.AddFlowiseClient("flowise");
 
 // Add SmtpClient from MailDev integration
 builder.Services.AddTransient(sp =>
@@ -60,6 +65,10 @@ app.MapGet("/qdrant/collections", async (QdrantClient client, CancellationToken 
 
 // maildev example(s)
 app.MapGet("/email/test", async (System.Net.Mail.SmtpClient client, CancellationToken cancellationToken) => await client.SendMailAsync("no-reply@example.com", "john.doe@example.com", "Test email", "This is some test content for the email.", cancellationToken));
+
+// flowise example(s)
+app.MapGet("/flowise/chatflows", async ([FromServices] IFlowiseClient client, CancellationToken cancellationToken)
+    => await client.GetChatflowsAsync(cancellationToken));
 
 // MailKit example(s)
 app.MapPost("/subscribe",

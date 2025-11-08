@@ -43,8 +43,8 @@ public static class FlowiseResourceBuilderExtensions
                       .WithImageTag(FlowiseContainerImageTags.Tag)
                       .WithHttpEndpoint(
                           targetPort: 3000,
-                          port: httpPort,
-                          name: FlowiseResource.HttpEndpointName)
+                          port: httpPort/*,
+                          name: FlowiseResource.HttpEndpointName*/)
                       .WithEnvironment("SHOW_COMMUNITY_NODES", showCommunityNodes.ToString());
 
         if (secretKeyParameter != null)
@@ -102,7 +102,7 @@ public static class FlowiseResourceBuilderExtensions
 
         builder.WithEnvironment(context =>
         {
-            context.EnvironmentVariables[$"ConnectionStrings__{flowiseResource.Resource.Name}_{FlowiseResource.HttpEndpointName}"] = flowiseResource.Resource.ConnectionStringExpression;
+            context.EnvironmentVariables[$"ConnectionStrings__{flowiseResource.Resource.Name}"] = flowiseResource.Resource.ConnectionStringExpression;
         });
 
         return builder;

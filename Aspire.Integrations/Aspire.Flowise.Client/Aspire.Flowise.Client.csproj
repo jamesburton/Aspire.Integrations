@@ -7,8 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting" Version="9.5.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.10" />
   </ItemGroup>
-	
+
+  <ItemGroup>
+    <ProjectReference Include="..\Flowise.Client\Flowise.Client.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -7,12 +7,14 @@ var cache = builder.AddRedis("cache");
 //var flowiseSecretKeyParameter = builder.AddParameter("flowise-secret-key");
 var flowiseUsernameParameter = builder.AddParameter("flowise-username");
 var flowisePasswordParameter = builder.AddParameter("flowise-password");
+var flowiseApiKeyParameter = builder.AddParameter("flowise-apikey");
 
 var maildev = builder.AddMailDev("maildev");
 
 // var flowise = builder.AddFlowise("flowise");
 // var flowise = builder.AddFlowise("flowise", flowiseSecretKeyParameter.Resource);
 var flowise = builder.AddFlowise("flowise",
+        apiKeyParameter: flowiseApiKeyParameter.Resource,
         usernameParameter: flowiseUsernameParameter.Resource,
         passwordParameter: flowisePasswordParameter.Resource)
     .WithLifetime(ContainerLifetime.Persistent);

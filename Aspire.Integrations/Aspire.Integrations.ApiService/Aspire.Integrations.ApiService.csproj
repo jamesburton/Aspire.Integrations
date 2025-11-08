@@ -7,13 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Aspire.Flowise.Client\Aspire.Flowise.Client.csproj" />
     <ProjectReference Include="..\Aspire.Integrations.ServiceDefaults\Aspire.Integrations.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Aspire.MailKit.Client\Aspire.MailKit.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.Qdrant.Client" Version="9.5.2" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.10" />
   </ItemGroup>
 
 </Project>
