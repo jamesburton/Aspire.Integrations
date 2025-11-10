@@ -26,7 +26,7 @@ public sealed class N8NResource(
     public ReferenceExpression ConnectionStringExpression =>
         apiKeyParameterResource switch
         {
-            ParameterResource apiKey => ReferenceExpression.Create($"Endpoint={HttpEndpoint.Property(EndpointProperty.Url)};Key={apiKey}"),
-            _ => ReferenceExpression.Create($"{HttpEndpoint.Property(EndpointProperty.Url)}")
+            ParameterResource apiKey => ReferenceExpression.Create($"Endpoint={HttpEndpoint.Property(EndpointProperty.Url)}/api/v1;Key={apiKey}"),
+            _ => ReferenceExpression.Create($"{HttpEndpoint.Property(EndpointProperty.Url)}/api/v1")
         };
 }
