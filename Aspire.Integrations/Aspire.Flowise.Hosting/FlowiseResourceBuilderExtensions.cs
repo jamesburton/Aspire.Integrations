@@ -1,8 +1,8 @@
-﻿// Put extensions in the Aspire.Hosting namespace to ease discovery as referencing
+﻿using Aspire.Hosting.ApplicationModel;
+
+// Put extensions in the Aspire.Hosting namespace to ease discovery as referencing
 // the Aspire hosting package automatically adds this namespace.
 namespace Aspire.Hosting;
-
-using Aspire.Hosting.ApplicationModel;
 
 public static class FlowiseResourceBuilderExtensions
 {
@@ -71,7 +71,6 @@ public static class FlowiseResourceBuilderExtensions
         return builder.WithVolume(name ?? VolumeNameGenerator.Generate(builder, "data"), "/root/.flowise",
             isReadOnly);
     }
-
 
     /// <summary>
     /// Adds a bind mount for the data folder to a Flowise container resource.
