@@ -26,6 +26,16 @@
 	<ProjectReference Include="..\Aspire.SeaweedFS.Hosting\Aspire.SeaweedFS.Hosting.csproj" IsAspireProjectResource="false" />
 	<ProjectReference Include="..\Aspire.Dozzle.Hosting\Aspire.Dozzle.Hosting.csproj" IsAspireProjectResource="false" />
 	<ProjectReference Include="..\Aspire.UptimeKuma.Hosting\Aspire.UptimeKuma.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Hoppscotch.Hosting\Aspire.Hoppscotch.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Infisical.Hosting\Aspire.Infisical.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Zitadel.Hosting\Aspire.Zitadel.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Temporal.Hosting\Aspire.Temporal.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Windmill.Hosting\Aspire.Windmill.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Docmost.Hosting\Aspire.Docmost.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Gitea.Hosting\Aspire.Gitea.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Plane.Hosting\Aspire.Plane.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Kroki.Hosting\Aspire.Kroki.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Appsmith.Hosting\Aspire.Appsmith.Hosting.csproj" IsAspireProjectResource="false" />
   </ItemGroup>
 
   <ItemGroup>

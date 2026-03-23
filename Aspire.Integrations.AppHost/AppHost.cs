@@ -59,6 +59,48 @@ var seaweedfs = builder.AddSeaweedFS("seaweedfs")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithDataVolume();
 
+// API development & security
+var hoppscotch = builder.AddHoppscotch("hoppscotch")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var infisical = builder.AddInfisical("infisical")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var zitadel = builder.AddZitadel("zitadel")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+// Workflow orchestration
+var temporal = builder.AddTemporal("temporal")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var windmill = builder.AddWindmill("windmill")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+// Knowledge & project management
+var docmost = builder.AddDocmost("docmost")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var gitea = builder.AddGitea("gitea")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var plane = builder.AddPlane("plane")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+// Visualization & low-code
+var kroki = builder.AddKroki("kroki");
+
+var appsmith = builder.AddAppsmith("appsmith")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
 // Application projects
 var apiService = builder.AddProject<Projects.Aspire_Integrations_ApiService>("apiservice")
     .WithReference(qdrant)
