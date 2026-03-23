@@ -11,107 +11,130 @@ var builder = WebApplication.CreateBuilder(args);
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
 
-// Add qdrant
-builder.AddQdrantClient("qdrant");
+// Detect which services are available by checking for connection strings.
+bool hasQdrant = !string.IsNullOrEmpty(builder.Configuration.GetConnectionString("qdrant"));
+bool hasMailDev = !string.IsNullOrEmpty(builder.Configuration.GetConnectionString("maildev"));
+bool hasFlowise = !string.IsNullOrEmpty(builder.Configuration.GetConnectionString("flowise"));
 
-// Add MailKit services to the container (using maildev connection string).
-builder.AddMailKitClient("maildev");
+if (hasQdrant)
+    builder.AddQdrantClient("qdrant");
 
-// Add Flowise client
-builder.AddFlowiseClient("flowise");
-
-// Add SmtpClient from MailDev integration
-builder.Services.AddTransient(sp =>
+if (hasMailDev)
 {
-    var smtpUri = new Uri(builder.Configuration.GetConnectionString("maildev")!);
+    builder.AddMailKitClient("maildev");
 
-    return new System.Net.Mail.SmtpClient(smtpUri.Host, smtpUri.Port);
-});
+    builder.Services.AddTransient(sp =>
+    {
+        var smtpUri = new Uri(builder.Configuration.GetConnectionString("maildev")!);
+        return new System.Net.Mail.SmtpClient(smtpUri.Host, smtpUri.Port);
+    });
+}
 
-// Add services to the container.
+if (hasFlowise)
+    builder.AddFlowiseClient("flowise");
+
 builder.Services.AddProblemDetails();
-
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
-{
     app.MapOpenApi();
-}
+
+// --- Weather forecast (always available) ---
 
 string[] summaries = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"];
 
 app.MapGet("/weatherforecast", () =>
 {
     var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
+        new WeatherForecast(
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
             Random.Shared.Next(-20, 55),
             summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
+        )).ToArray();
     return forecast;
-})
-.WithName("GetWeatherForecast");
+}).WithName("GetWeatherForecast");
 
-// qdrant example(s)
-app.MapGet("/qdrant/collections", async (QdrantClient client, CancellationToken cancellationToken) => await client.ListCollectionsAsync(cancellationToken));
+// --- Qdrant endpoints ---
 
-// maildev example(s)
-app.MapGet("/email/test", async (System.Net.Mail.SmtpClient client, CancellationToken cancellationToken) => await client.SendMailAsync("no-reply@example.com", "john.doe@example.com", "Test email", "This is some test content for the email.", cancellationToken));
+if (hasQdrant)
+{
+    app.MapGet("/qdrant/collections", async (QdrantClient client, CancellationToken ct)
+        => await client.ListCollectionsAsync(ct));
+}
+else
+{
+    app.MapGet("/qdrant/collections", () => Results.Json(
+        new { error = "Qdrant Service Disabled in appsettings.json" }, statusCode: 503));
+}
 
-// flowise example(s)
-app.MapGet("/flowise/chatflows", async ([FromServices] IFlowiseClient client, CancellationToken cancellationToken)
-    => await client.GetChatflowsAsync(cancellationToken));
+// --- Email/MailDev endpoints ---
 
-// MailKit example(s)
-app.MapPost("/subscribe",
-    async (MailKitClientFactory factory, string email) =>
+if (hasMailDev)
+{
+    app.MapGet("/email/test", async (System.Net.Mail.SmtpClient client, CancellationToken ct)
+        => await client.SendMailAsync("no-reply@example.com", "john.doe@example.com", "Test email", "This is some test content for the email.", ct));
+
+    app.MapPost("/subscribe", async (MailKitClientFactory factory, string email) =>
     {
         ISmtpClient client = await factory.GetSmtpClientAsync();
-
         using var message = new System.Net.Mail.MailMessage("newsletter@yourcompany.com", email)
         {
             Subject = "Welcome to our newsletter!",
             Body = "Thank you for subscribing to our newsletter!"
         };
-
         await client.SendAsync(MimeMessage.CreateFromMailMessage(message));
     });
 
-app.MapGet("/subscribe/{*email}",
-    async (MailKitClientFactory factory, [FromRoute] string email) =>
+    app.MapGet("/subscribe/{*email}", async (MailKitClientFactory factory, [FromRoute] string email) =>
     {
         ISmtpClient client = await factory.GetSmtpClientAsync();
-
         using var message = new System.Net.Mail.MailMessage("newsletter@yourcompany.com", email)
         {
             Subject = "Welcome to our newsletter!",
             Body = "Thank you for subscribing to our newsletter!"
         };
-
         await client.SendAsync(MimeMessage.CreateFromMailMessage(message));
     });
 
-app.MapPost("/unsubscribe",
-    async (MailKitClientFactory factory, string email) =>
+    app.MapPost("/unsubscribe", async (MailKitClientFactory factory, string email) =>
     {
         ISmtpClient client = await factory.GetSmtpClientAsync();
-
         using var message = new System.Net.Mail.MailMessage("newsletter@yourcompany.com", email)
         {
             Subject = "You are unsubscribed from our newsletter!",
             Body = "Sorry to see you go. We hope you will come back soon!"
         };
-
         await client.SendAsync(MimeMessage.CreateFromMailMessage(message));
     });
+}
+else
+{
+    app.MapGet("/email/test", () => Results.Json(
+        new { error = "MailDev Service Disabled in appsettings.json" }, statusCode: 503));
+    app.MapPost("/subscribe", () => Results.Json(
+        new { error = "MailDev Service Disabled in appsettings.json" }, statusCode: 503));
+    app.MapGet("/subscribe/{*email}", () => Results.Json(
+        new { error = "MailDev Service Disabled in appsettings.json" }, statusCode: 503));
+    app.MapPost("/unsubscribe", () => Results.Json(
+        new { error = "MailDev Service Disabled in appsettings.json" }, statusCode: 503));
+}
+
+// --- Flowise endpoints ---
+
+if (hasFlowise)
+{
+    app.MapGet("/flowise/chatflows", async ([FromServices] IFlowiseClient client, CancellationToken ct)
+        => await client.GetChatflowsAsync(ct));
+}
+else
+{
+    app.MapGet("/flowise/chatflows", () => Results.Json(
+        new { error = "Flowise Service Disabled in appsettings.json" }, statusCode: 503));
+}
 
 app.MapDefaultEndpoints();
 
