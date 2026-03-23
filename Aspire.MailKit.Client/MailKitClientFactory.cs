@@ -9,9 +9,8 @@ namespace Aspire.MailKit.Client;
 /// <param name="settings">
 /// The <see cref="MailKitClientSettings"/> settings for the SMTP server
 /// </param>
-public sealed class MailKitClientFactory(MailKitClientSettings settings) //: IDisposable
+public sealed class MailKitClientFactory(MailKitClientSettings settings)
 {
-
     /// <summary>
     /// Gets an <see cref="ISmtpClient"/> instance in the connected state
     /// (and that's been authenticated if configured).

@@ -18,7 +18,7 @@ public sealed class MailKitClientSettings
     public Uri? Endpoint { get; set; }
 
     /// <summary>
-    /// Gets or sets a boolean value that indicates whether the database health check is disabled or not.
+    /// Gets or sets a boolean value that indicates whether the SMTP health check is disabled or not.
     /// </summary>
     /// <value>
     /// The default value is <see langword="false"/>.

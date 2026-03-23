@@ -89,24 +89,5 @@ public static class N8NExtensions
                     failureStatus: default,
                     tags: []);
         }
-
-        //if (!settings.DisableTracing)
-        //{
-        //    builder.Services.AddOpenTelemetry()
-        //        .WithTracing(
-        //            traceBuilder => traceBuilder.AddSource(
-        //                Telemetry.N8NClient.ActivitySourceName));
-        //}
-
-        //if (!settings.DisableMetrics)
-        //{
-        //    // Required by N8N to enable metrics
-        //    Telemetry.N8NClient.Configure();
-
-        //    builder.Services.AddOpenTelemetry()
-        //        .WithMetrics(
-        //            metricsBuilder => metricsBuilder.AddMeter(
-        //                Telemetry.N8NClient.MeterName));
-        //}
     }
 }

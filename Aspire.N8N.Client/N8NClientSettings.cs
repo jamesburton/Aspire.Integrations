@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Aspire.N8N.Client;
+﻿namespace Aspire.N8N.Client;
 
 /// <summary>
 /// Settings used to configure the N8N client from configuration / connection string.

@@ -2,7 +2,6 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
 
-//var flowiseSecretKeyParameter = builder.AddParameter("flowise-secret-key");
 var flowiseUsernameParameter = builder.AddParameter("flowise-username");
 var flowisePasswordParameter = builder.AddParameter("flowise-password");
 var flowiseApiKeyParameter = builder.AddParameter("flowise-apikey");
@@ -20,8 +19,47 @@ var n8n = builder.AddN8N("n8n")
 
 var qdrant = builder.AddQdrant("qdrant")
                     .WithLifetime(ContainerLifetime.Persistent)
-                    .WithDataVolume(name: "flowise_Aspire-Integrations");
+                    .WithDataVolume(name: "qdrant_Aspire-Integrations");
 
+// AI/LLM tooling
+var litellm = builder.AddLiteLLM("litellm")
+    .WithLifetime(ContainerLifetime.Persistent);
+
+var langfuse = builder.AddLangfuse("langfuse")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var openWebUI = builder.AddOpenWebUI("open-webui")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+// Observability & monitoring
+var openObserve = builder.AddOpenObserve("openobserve")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var dozzle = builder.AddDozzle("dozzle");
+
+var uptimeKuma = builder.AddUptimeKuma("uptime-kuma")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+// Developer utilities
+var gotenberg = builder.AddGotenberg("gotenberg");
+
+var meilisearch = builder.AddMeilisearch("meilisearch")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var typesense = builder.AddTypesense("typesense")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var seaweedfs = builder.AddSeaweedFS("seaweedfs")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+// Application projects
 var apiService = builder.AddProject<Projects.Aspire_Integrations_ApiService>("apiservice")
     .WithReference(qdrant)
     .WaitFor(qdrant)
@@ -31,6 +69,10 @@ var apiService = builder.AddProject<Projects.Aspire_Integrations_ApiService>("ap
     .WaitFor(flowise)
     .WithReference(n8n)
     .WaitFor(n8n)
+    .WithReference(gotenberg)
+    .WaitFor(gotenberg)
+    .WithReference(meilisearch)
+    .WaitFor(meilisearch)
     .WithHttpHealthCheck("/health");
 
 builder.AddProject<Projects.Aspire_Integrations_Web>("webfrontend")

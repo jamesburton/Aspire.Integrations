@@ -1,38 +1,23 @@
-﻿using Flowise.Client;
+using Flowise.Client;
 using Flowise.Client.Models;
 
 namespace Aspire.Flowise.Client;
 
 /// <summary>
-/// A factory for creating <see cref="IFlowiseClient"/> instances
-/// given a <paramref name="Uri"/> (and optional <paramref name="credentials"/>).
+/// A factory for creating <see cref="IFlowiseClient"/> instances.
 /// </summary>
 /// <param name="settings">
-/// The <see cref="FlowiseClientSettings"/> settings for the Flowise API server
+/// The <see cref="FlowiseClientSettings"/> settings for the Flowise API server.
 /// </param>
-public sealed class FlowiseClientFactory(FlowiseClientSettings settings) //: IDisposable
+public sealed class FlowiseClientFactory(FlowiseClientSettings settings)
 {
-
     /// <summary>
-    /// Gets an <see cref="IFlowiseClient"/> instance in the connected state
-    /// (and that's been authenticated if configured).
+    /// Gets an <see cref="IFlowiseClient"/> instance configured with the current settings.
     /// </summary>
-    /// <returns>A connected (and authenticated) <see cref="IFlowiseClient"/> instance.</returns>
-    /// <remarks>
-    /// Since both the connection and authentication are considered expensive operations,
-    /// the <see cref="IFlowiseClient"/> returned is intended to be used for the duration of a request
-    /// (registered as 'Scoped') and is automatically disposed of.
-    /// </remarks>
-    public IFlowiseClient GetFlowiseClient()
+    /// <returns>A configured <see cref="IFlowiseClient"/> instance.</returns>
+    public IFlowiseClient GetFlowiseClient() => new FlowiseClient(new FlowiseClientOptions
     {
-        var options = new FlowiseClientOptions
-        {
-            BaseUrl = settings.Endpoint?.ToString() ?? string.Empty,
-            ApiKey = settings.ApiKey,
-        };
-
-        var client = new FlowiseClient(options);
-
-        return client;
-    }
+        BaseUrl = settings.Endpoint?.ToString() ?? string.Empty,
+        ApiKey = settings.ApiKey,
+    });
 }

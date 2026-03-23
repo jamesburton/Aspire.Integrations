@@ -1,6 +1,4 @@
-﻿// Put extensions in the Aspire.Hosting namespace to ease discovery as referencing
-// the Aspire hosting package automatically adds this namespace.
-namespace Aspire.Hosting;
+﻿namespace Aspire.Hosting;
 
 using Aspire.Hosting.ApplicationModel;
 
@@ -27,10 +25,6 @@ public static class N8NResourceBuilderExtensions
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentException.ThrowIfNullOrEmpty(name);
 
-        // The AddResource method is a core API within Aspire and is
-        // used by resource developers to wrap a custom resource in an
-        // IResourceBuilder<T> instance. Extension methods to customize
-        // the resource (if any exist) target the builder interface.
         var resource = new N8NResource(name, apiKeyParameter);
 
         var n8n = builder.AddResource(resource)
@@ -100,8 +94,6 @@ public static class N8NResourceBuilderExtensions
     }
 }
 
-// This class just contains constant strings that can be updated periodically
-// when new versions of the underlying container are released.
 internal static class N8NContainerImageTags
 {
     internal const string Registry = "docker.io";

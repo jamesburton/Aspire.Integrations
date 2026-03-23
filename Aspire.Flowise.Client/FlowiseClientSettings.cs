@@ -20,28 +20,12 @@ public class FlowiseClientSettings
     public string? ApiKey { get; set; }
 
     /// <summary>
-    /// Gets or sets a boolean value that indicates whether the database health check is disabled or not.
+    /// Gets or sets a boolean value that indicates whether the Flowise health check is disabled or not.
     /// </summary>
     /// <value>
     /// The default value is <see langword="false"/>.
     /// </value>
     public bool DisableHealthChecks { get; set; }
-
-    ///// <summary>
-    ///// Gets or sets a boolean value that indicates whether the OpenTelemetry tracing is disabled or not.
-    ///// </summary>
-    ///// <value>
-    ///// The default value is <see langword="false"/>.
-    ///// </value>
-    //public bool DisableTracing { get; set; }
-
-    ///// <summary>
-    ///// Gets or sets a boolean value that indicates whether the OpenTelemetry metrics are disabled or not.
-    ///// </summary>
-    ///// <value>
-    ///// The default value is <see langword="false"/>.
-    ///// </value>
-    //public bool DisableMetrics { get; set; }
 
     internal void ParseConnectionString(string? connectionString)
     {

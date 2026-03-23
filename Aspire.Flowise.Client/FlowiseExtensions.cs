@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 namespace Aspire.Flowise.Client;
 
 public static class FlowiseExtensions
-    {
+{
     /// <summary>
     /// Registers 'Scoped' <see cref="FlowiseClientFactory" /> for creating
     /// connected <see cref="FlowiseClient"/> instance for interacting with Flowise server.
@@ -88,24 +88,5 @@ public static class FlowiseExtensions
                     failureStatus: default,
                     tags: []);
         }
-
-        //if (!settings.DisableTracing)
-        //{
-        //    builder.Services.AddOpenTelemetry()
-        //        .WithTracing(
-        //            traceBuilder => traceBuilder.AddSource(
-        //                Telemetry.SmtpClient.ActivitySourceName));
-        //}
-
-        //if (!settings.DisableMetrics)
-        //{
-        //    // Required by Flowise to enable metrics
-        //    Telemetry.FlowiseClient.Configure();
-
-        //    builder.Services.AddOpenTelemetry()
-        //        .WithMetrics(
-        //            metricsBuilder => metricsBuilder.AddMeter(
-        //                Telemetry.FlowiseClient.MeterName));
-        //}
     }
 }

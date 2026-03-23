@@ -1,22 +1,24 @@
 ﻿using Aspire.Hosting.ApplicationModel;
 
-// Put extensions in the Aspire.Hosting namespace to ease discovery as referencing
-// the Aspire hosting package automatically adds this namespace.
 namespace Aspire.Hosting;
 
 public static class FlowiseResourceBuilderExtensions
 {
     /// <summary>
     /// Adds the <see cref="FlowiseResource"/> to the given
-    /// <paramref name="builder"/> instance. Uses the "2.1.0" tag.
+    /// <paramref name="builder"/> instance.
     /// </summary>
     /// <param name="builder">The <see cref="IDistributedApplicationBuilder"/>.</param>
     /// <param name="name">The name of the resource.</param>
     /// <param name="httpPort">The HTTP port.</param>
-    /// <param name="smtpPort">The SMTP port.</param>
+    /// <param name="apiKeyParameter">The API key parameter for authentication.</param>
+    /// <param name="usernameParameter">The username parameter for authentication.</param>
+    /// <param name="passwordParameter">The password parameter for authentication.</param>
+    /// <param name="secretKeyParameter">The secret key parameter for encryption.</param>
+    /// <param name="showCommunityNodes">Whether to show community nodes.</param>
     /// <returns>
-    /// An <see cref="IResourceBuilder{MailDevResource}"/> instance that
-    /// represents the added MailDev resource.
+    /// An <see cref="IResourceBuilder{FlowiseResource}"/> instance that
+    /// represents the added Flowise resource.
     /// </returns>
     public static IResourceBuilder<FlowiseResource> AddFlowise(
         this IDistributedApplicationBuilder builder,
@@ -31,10 +33,6 @@ public static class FlowiseResourceBuilderExtensions
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentException.ThrowIfNullOrEmpty(name);
 
-        // The AddResource method is a core API within Aspire and is
-        // used by resource developers to wrap a custom resource in an
-        // IResourceBuilder<T> instance. Extension methods to customize
-        // the resource (if any exist) target the builder interface.
         var resource = new FlowiseResource(name, apiKeyParameter, usernameParameter, passwordParameter);
 
         var flowise = builder.AddResource(resource)
@@ -43,18 +41,17 @@ public static class FlowiseResourceBuilderExtensions
                       .WithImageTag(FlowiseContainerImageTags.Tag)
                       .WithHttpEndpoint(
                           targetPort: 3000,
-                          port: httpPort/*,
-                          name: FlowiseResource.HttpEndpointName*/)
+                          port: httpPort)
                       .WithEnvironment("SHOW_COMMUNITY_NODES", showCommunityNodes.ToString());
 
         if (secretKeyParameter != null)
-            flowise.WithEnvironment("FLOWISE_SECRETKEY_OVERWRITE", secretKeyParameter!);
+            flowise.WithEnvironment("FLOWISE_SECRETKEY_OVERWRITE", secretKeyParameter);
 
         if (usernameParameter != null)
-            flowise.WithEnvironment("FLOWISE_USERNAME", usernameParameter!);
+            flowise.WithEnvironment("FLOWISE_USERNAME", usernameParameter);
 
         if (passwordParameter != null)
-            flowise.WithEnvironment("FLOWISE_PASSWORD", passwordParameter!);
+            flowise.WithEnvironment("FLOWISE_PASSWORD", passwordParameter);
 
         return flowise;
     }
@@ -108,8 +105,6 @@ public static class FlowiseResourceBuilderExtensions
     }
 }
 
-// This class just contains constant strings that can be updated periodically
-// when new versions of the underlying container are released.
 internal static class FlowiseContainerImageTags
 {
     internal const string Registry = "docker.io";
