@@ -1,166 +1,204 @@
+using Microsoft.Extensions.Configuration;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
-var cache = builder.AddRedis("cache");
+var services = builder.Configuration.GetSection("Services");
+bool IsEnabled(string name) => services.GetValue<bool>(name);
 
-var flowiseUsernameParameter = builder.AddParameter("flowise-username");
-var flowisePasswordParameter = builder.AddParameter("flowise-password");
-var flowiseApiKeyParameter = builder.AddParameter("flowise-apikey");
+// --- Core infrastructure ---
 
-var maildev = builder.AddMailDev("maildev");
+var cache = IsEnabled("Redis")
+    ? builder.AddRedis("cache")
+    : null;
 
-var flowise = builder.AddFlowise("flowise",
-        apiKeyParameter: flowiseApiKeyParameter.Resource,
-        usernameParameter: flowiseUsernameParameter.Resource,
-        passwordParameter: flowisePasswordParameter.Resource)
-    .WithLifetime(ContainerLifetime.Persistent);
+var maildev = IsEnabled("MailDev")
+    ? builder.AddMailDev("maildev")
+    : null;
 
-var n8n = builder.AddN8N("n8n")
-    .WithLifetime(ContainerLifetime.Persistent);
+IResourceBuilder<QdrantServerResource>? qdrant = null;
+if (IsEnabled("Qdrant"))
+{
+    qdrant = builder.AddQdrant("qdrant")
+        .WithLifetime(ContainerLifetime.Persistent)
+        .WithDataVolume(name: "qdrant_Aspire-Integrations");
+}
 
-var qdrant = builder.AddQdrant("qdrant")
-                    .WithLifetime(ContainerLifetime.Persistent)
-                    .WithDataVolume(name: "qdrant_Aspire-Integrations");
+// --- AI/LLM tooling ---
 
-// AI/LLM tooling
-var litellm = builder.AddLiteLLM("litellm")
-    .WithLifetime(ContainerLifetime.Persistent);
+IResourceBuilder<FlowiseResource>? flowise = null;
+if (IsEnabled("Flowise"))
+{
+    var flowiseUsernameParameter = builder.AddParameter("flowise-username");
+    var flowisePasswordParameter = builder.AddParameter("flowise-password");
+    var flowiseApiKeyParameter = builder.AddParameter("flowise-apikey");
 
-var langfuse = builder.AddLangfuse("langfuse")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+    flowise = builder.AddFlowise("flowise",
+            apiKeyParameter: flowiseApiKeyParameter.Resource,
+            usernameParameter: flowiseUsernameParameter.Resource,
+            passwordParameter: flowisePasswordParameter.Resource)
+        .WithLifetime(ContainerLifetime.Persistent);
+}
 
-var openWebUI = builder.AddOpenWebUI("open-webui")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var n8n = IsEnabled("N8N")
+    ? builder.AddN8N("n8n").WithLifetime(ContainerLifetime.Persistent)
+    : null;
 
-// Observability & monitoring
-var openObserve = builder.AddOpenObserve("openobserve")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var litellm = IsEnabled("LiteLLM")
+    ? builder.AddLiteLLM("litellm").WithLifetime(ContainerLifetime.Persistent)
+    : null;
 
-var dozzle = builder.AddDozzle("dozzle");
+var langfuse = IsEnabled("Langfuse")
+    ? builder.AddLangfuse("langfuse").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-var uptimeKuma = builder.AddUptimeKuma("uptime-kuma")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var openWebUI = IsEnabled("OpenWebUI")
+    ? builder.AddOpenWebUI("open-webui").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-// Developer utilities
-var gotenberg = builder.AddGotenberg("gotenberg");
+var localai = IsEnabled("LocalAI")
+    ? builder.AddLocalAI("localai").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-var meilisearch = builder.AddMeilisearch("meilisearch")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+// --- Observability & monitoring ---
 
-var typesense = builder.AddTypesense("typesense")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var openObserve = IsEnabled("OpenObserve")
+    ? builder.AddOpenObserve("openobserve").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-var seaweedfs = builder.AddSeaweedFS("seaweedfs")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var dozzle = IsEnabled("Dozzle")
+    ? builder.AddDozzle("dozzle")
+    : null;
 
-// API development & security
-var hoppscotch = builder.AddHoppscotch("hoppscotch")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var uptimeKuma = IsEnabled("UptimeKuma")
+    ? builder.AddUptimeKuma("uptime-kuma").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-var infisical = builder.AddInfisical("infisical")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var grafana = IsEnabled("Grafana")
+    ? builder.AddGrafana("grafana").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-var zitadel = builder.AddZitadel("zitadel")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var otelLgtm = IsEnabled("OtelLgtm")
+    ? builder.AddOtelLgtm("otel-lgtm").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-// Workflow orchestration
-var temporal = builder.AddTemporal("temporal")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+// --- Search & storage ---
 
-var windmill = builder.AddWindmill("windmill")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var meilisearch = IsEnabled("Meilisearch")
+    ? builder.AddMeilisearch("meilisearch").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-// Knowledge & project management
-var docmost = builder.AddDocmost("docmost")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var typesense = IsEnabled("Typesense")
+    ? builder.AddTypesense("typesense").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-var gitea = builder.AddGitea("gitea")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var seaweedfs = IsEnabled("SeaweedFS")
+    ? builder.AddSeaweedFS("seaweedfs").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-var plane = builder.AddPlane("plane")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var memcached = IsEnabled("Memcached")
+    ? builder.AddMemcached("memcached")
+    : null;
 
-// Visualization & low-code
-var kroki = builder.AddKroki("kroki");
+// --- Developer utilities ---
 
-var appsmith = builder.AddAppsmith("appsmith")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var gotenberg = IsEnabled("Gotenberg")
+    ? builder.AddGotenberg("gotenberg")
+    : null;
 
-// Database admin & migrations
-var adminer = builder.AddAdminer("adminer");
+var kroki = IsEnabled("Kroki")
+    ? builder.AddKroki("kroki")
+    : null;
 
-var pgadmin = builder.AddPgAdmin("pgadmin")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var hoppscotch = IsEnabled("Hoppscotch")
+    ? builder.AddHoppscotch("hoppscotch").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-var bytebase = builder.AddBytebase("bytebase")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var adminer = IsEnabled("Adminer")
+    ? builder.AddAdminer("adminer")
+    : null;
 
-// Observability & dashboards
-var grafana = builder.AddGrafana("grafana")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+// --- Security & identity ---
 
-var otelLgtm = builder.AddOtelLgtm("otel-lgtm")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var infisical = IsEnabled("Infisical")
+    ? builder.AddInfisical("infisical").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-// Caching & messaging
-var memcached = builder.AddMemcached("memcached");
+var zitadel = IsEnabled("Zitadel")
+    ? builder.AddZitadel("zitadel").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-var mattermost = builder.AddMattermost("mattermost")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+// --- Workflow orchestration ---
 
-var soketi = builder.AddSoketi("soketi");
+var temporal = IsEnabled("Temporal")
+    ? builder.AddTemporal("temporal").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-// Content & AI
-var directus = builder.AddDirectus("directus")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+var windmill = IsEnabled("Windmill")
+    ? builder.AddWindmill("windmill").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
 
-var localai = builder.AddLocalAI("localai")
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithDataVolume();
+// --- Knowledge & project management ---
 
-// Application projects
+var docmost = IsEnabled("Docmost")
+    ? builder.AddDocmost("docmost").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
+
+var gitea = IsEnabled("Gitea")
+    ? builder.AddGitea("gitea").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
+
+var plane = IsEnabled("Plane")
+    ? builder.AddPlane("plane").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
+
+// --- Content & low-code ---
+
+var directus = IsEnabled("Directus")
+    ? builder.AddDirectus("directus").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
+
+var appsmith = IsEnabled("Appsmith")
+    ? builder.AddAppsmith("appsmith").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
+
+// --- Database admin & migrations ---
+
+var pgadmin = IsEnabled("PgAdmin")
+    ? builder.AddPgAdmin("pgadmin").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
+
+var bytebase = IsEnabled("Bytebase")
+    ? builder.AddBytebase("bytebase").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
+
+// --- Messaging ---
+
+var mattermost = IsEnabled("Mattermost")
+    ? builder.AddMattermost("mattermost").WithLifetime(ContainerLifetime.Persistent).WithDataVolume()
+    : null;
+
+var soketi = IsEnabled("Soketi")
+    ? builder.AddSoketi("soketi")
+    : null;
+
+// --- Application projects ---
+
 var apiService = builder.AddProject<Projects.Aspire_Integrations_ApiService>("apiservice")
-    .WithReference(qdrant)
-    .WaitFor(qdrant)
-    .WithReference(maildev)
-    .WaitFor(maildev)
-    .WithReference(flowise)
-    .WaitFor(flowise)
-    .WithReference(n8n)
-    .WaitFor(n8n)
-    .WithReference(gotenberg)
-    .WaitFor(gotenberg)
-    .WithReference(meilisearch)
-    .WaitFor(meilisearch)
     .WithHttpHealthCheck("/health");
 
-builder.AddProject<Projects.Aspire_Integrations_Web>("webfrontend")
+if (qdrant is not null) apiService.WithReference(qdrant).WaitFor(qdrant);
+if (maildev is not null) apiService.WithReference(maildev).WaitFor(maildev);
+if (flowise is not null) apiService.WithReference(flowise).WaitFor(flowise);
+if (n8n is not null) apiService.WithReference(n8n).WaitFor(n8n);
+if (gotenberg is not null) apiService.WithReference(gotenberg).WaitFor(gotenberg);
+if (meilisearch is not null) apiService.WithReference(meilisearch).WaitFor(meilisearch);
+
+var webfrontend = builder.AddProject<Projects.Aspire_Integrations_Web>("webfrontend")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
-    .WithReference(cache)
-    .WaitFor(cache)
     .WithReference(apiService)
     .WaitFor(apiService);
+
+if (cache is not null) webfrontend.WithReference(cache).WaitFor(cache);
 
 await builder.Build().RunAsync();
