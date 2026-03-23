@@ -36,6 +36,16 @@
 	<ProjectReference Include="..\Aspire.Plane.Hosting\Aspire.Plane.Hosting.csproj" IsAspireProjectResource="false" />
 	<ProjectReference Include="..\Aspire.Kroki.Hosting\Aspire.Kroki.Hosting.csproj" IsAspireProjectResource="false" />
 	<ProjectReference Include="..\Aspire.Appsmith.Hosting\Aspire.Appsmith.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Adminer.Hosting\Aspire.Adminer.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.PgAdmin.Hosting\Aspire.PgAdmin.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Grafana.Hosting\Aspire.Grafana.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.OtelLgtm.Hosting\Aspire.OtelLgtm.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Memcached.Hosting\Aspire.Memcached.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Mattermost.Hosting\Aspire.Mattermost.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Directus.Hosting\Aspire.Directus.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.LocalAI.Hosting\Aspire.LocalAI.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Soketi.Hosting\Aspire.Soketi.Hosting.csproj" IsAspireProjectResource="false" />
+	<ProjectReference Include="..\Aspire.Bytebase.Hosting\Aspire.Bytebase.Hosting.csproj" IsAspireProjectResource="false" />
   </ItemGroup>
 
   <ItemGroup>

@@ -101,6 +101,44 @@ var appsmith = builder.AddAppsmith("appsmith")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithDataVolume();
 
+// Database admin & migrations
+var adminer = builder.AddAdminer("adminer");
+
+var pgadmin = builder.AddPgAdmin("pgadmin")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var bytebase = builder.AddBytebase("bytebase")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+// Observability & dashboards
+var grafana = builder.AddGrafana("grafana")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var otelLgtm = builder.AddOtelLgtm("otel-lgtm")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+// Caching & messaging
+var memcached = builder.AddMemcached("memcached");
+
+var mattermost = builder.AddMattermost("mattermost")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var soketi = builder.AddSoketi("soketi");
+
+// Content & AI
+var directus = builder.AddDirectus("directus")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
+var localai = builder.AddLocalAI("localai")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithDataVolume();
+
 // Application projects
 var apiService = builder.AddProject<Projects.Aspire_Integrations_ApiService>("apiservice")
     .WithReference(qdrant)
